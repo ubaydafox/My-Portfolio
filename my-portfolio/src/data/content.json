@@ -1,0 +1,84 @@
+{
+  "gallery": {
+    "design-poster.svg": {
+      "title": "Campus Summit Poster",
+      "category": "Design",
+      "subcategory": "Poster & Typography",
+      "tools": "Adobe Illustrator",
+      "description": "Typographic promotional poster with geometric golden proportions designed for university student conferences.",
+      "order": 1
+    },
+    "design-branding.svg": {
+      "title": "Minimalist Brand Geometry",
+      "category": "Design",
+      "subcategory": "Brand Identity",
+      "tools": "Adobe Illustrator",
+      "description": "Vector monogram and brand identity study balancing negative space and gold symmetry.",
+      "order": 2
+    },
+    "photo-portrait.svg": {
+      "title": "Human Silhouette Study",
+      "category": "Photography",
+      "subcategory": "Portraiture",
+      "tools": "Natural Light, 50mm",
+      "description": "High-contrast portrait study using diffused natural light, exploring human form and quiet depth.",
+      "order": 3
+    },
+    "photo-nature.svg": {
+      "title": "Highland Mist & Ridges",
+      "category": "Photography",
+      "subcategory": "Nature & Landscape",
+      "tools": "Landscape, 24mm",
+      "description": "Morning light over the Sylhet highlands, capturing organic textures and a serene atmosphere.",
+      "order": 4
+    },
+    "ig-post-1-01.jpg": {
+      "order": 5,
+      "title": "36 July Magazine",
+      "category": "Design",
+      "subcategory": "Typography",
+      "tools": "Adobe Illustrator",
+      "description": ""
+    }
+  },
+  "welfare": {
+    "organization": "Students Welfare",
+    "role": "Organizing President",
+    "intro": "True leadership combines technical competence with empathy and community service. As Organizing President at Students Welfare, I direct volunteer operations, coordinate student emergency support, and organize university-wide welfare drives.",
+    "stats": [
+      {
+        "value": "500+",
+        "label": "Students Supported"
+      },
+      {
+        "value": "4+",
+        "label": "Welfare Campaigns"
+      },
+      {
+        "value": "15+",
+        "label": "Executive Volunteers"
+      },
+      {
+        "value": "2024",
+        "label": "Serving Since"
+      }
+    ],
+    "timeline": [
+      {
+        "date": "2024 — Present",
+        "title": "Organizing President",
+        "description": "Presiding over committee meetings, structuring annual campus welfare programs, and facilitating academic relief funds."
+      },
+      {
+        "date": "2023 — 2024",
+        "title": "Event Logistics & Welfare Coordination",
+        "description": "Directed inter-faculty coordination, student support booths, emergency blood donation networks, and university donation drives."
+      },
+      {
+        "date": "2023",
+        "title": "Community Outreach & Winter Aid",
+        "description": "Led the annual winter clothes drive and student orientation sessions across university departments."
+      }
+    ]
+  }
+}

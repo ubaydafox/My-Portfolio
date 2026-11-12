@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { loadGalleryData, saveGalleryData, DEFAULT_GALLERY } from "./data/galleryData.js";
+import { galleryItems, welfare } from "./data/content.js";
 
 // ==========================================
 // SVG ICONS (100% Vector, Zero Emojis)
@@ -234,25 +234,6 @@ function ArrowRightIcon({ size = 20 }) {
   );
 }
 
-function UploadIcon({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-  );
-}
-
-function TrashIcon({ size = 16 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  );
-}
-
 function ZoomInIcon({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -404,21 +385,9 @@ export default function Portfolio() {
   // Feature 2: CV Modal
   const [showCvModal, setShowCvModal] = useState(false);
 
-  // Feature 3: Gallery, Lightbox, Management System
-  const [galleryItems, setGalleryItems] = useState(loadGalleryData());
+  // Feature 3: Gallery & Lightbox (content managed from the local admin panel)
   const [galleryFilter, setGalleryFilter] = useState("All");
   const [lightboxIndex, setLightboxIndex] = useState(null); // null when closed
-  const [showGalleryManager, setShowGalleryManager] = useState(false);
-  const [managerTab, setManagerTab] = useState("add"); // "add" | "list" | "help"
-
-  // Form state for adding gallery items
-  const [newItemTitle, setNewItemTitle] = useState("");
-  const [newItemCategory, setNewItemCategory] = useState("Design");
-  const [newItemSubcat, setNewItemSubcat] = useState("Poster Design");
-  const [newItemImage, setNewItemImage] = useState("");
-  const [newItemTools, setNewItemTools] = useState("Adobe Illustrator");
-  const [newItemDesc, setNewItemDesc] = useState("");
-  const [newItemNotice, setNewItemNotice] = useState("");
 
   // Feature 4: On-Site Contact Form State
   const [contactName, setContactName] = useState("");
@@ -439,7 +408,7 @@ export default function Portfolio() {
   // Feature 6: Live GitHub Repos & Stats
   const [githubUser, setGithubUser] = useState({ public_repos: 4, followers: 2, following: 2 });
   const [githubRepos, setGithubRepos] = useState(FALLBACK_REPOS);
-  const [reposLoading, setReposLoading] = useState(true);
+  const [githubLive, setGithubLive] = useState(false);
 
   const phoneNumber = "01607896458";
   const emailAddress = "ubaydaazad@gmail.com";
@@ -498,28 +467,31 @@ export default function Portfolio() {
         }
         if (Array.isArray(reposData) && reposData.length > 0) {
           setGithubRepos(reposData);
+          setGithubLive(true);
         }
-        setReposLoading(false);
       })
       .catch((err) => {
         console.warn("GitHub API offline/rate-limited, using fallback data:", err);
-        if (isMounted) setReposLoading(false);
       });
 
     return () => { isMounted = false; };
   }, []);
 
   // Keyboard navigation for Lightbox
+  const lightboxCount = galleryItems.filter(
+    (item) => galleryFilter === "All" || item.category.toLowerCase() === galleryFilter.toLowerCase()
+  ).length;
+
   useEffect(() => {
+    if (lightboxIndex === null) return;
     const handleKeyDown = (e) => {
-      if (lightboxIndex === null) return;
       if (e.key === "Escape") setLightboxIndex(null);
-      if (e.key === "ArrowLeft") handlePrevLightbox();
-      if (e.key === "ArrowRight") handleNextLightbox();
+      if (e.key === "ArrowLeft") setLightboxIndex((p) => (p > 0 ? p - 1 : lightboxCount - 1));
+      if (e.key === "ArrowRight") setLightboxIndex((p) => (p < lightboxCount - 1 ? p + 1 : 0));
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxIndex, galleryItems]);
+  }, [lightboxIndex, lightboxCount]);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -599,62 +571,6 @@ export default function Portfolio() {
   const handleNextLightbox = () => {
     if (lightboxIndex === null) return;
     setLightboxIndex((prev) => (prev < filteredGallery.length - 1 ? prev + 1 : 0));
-  };
-
-  // Feature 3: Gallery Upload / Management
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setNewItemImage(event.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleAddGalleryItem = (e) => {
-    e.preventDefault();
-    if (!newItemTitle.trim() || !newItemImage.trim()) {
-      setNewItemNotice("Please enter a title and provide an image file or URL.");
-      return;
-    }
-
-    const newItem = {
-      id: "item-" + Date.now(),
-      title: newItemTitle.trim(),
-      category: newItemCategory,
-      subcategory: newItemSubcat.trim() || "Visual Work",
-      image: newItemImage,
-      description: newItemDesc.trim() || "Creative visual work showcased in portfolio.",
-      tools: newItemTools.trim() || "Creative Suite",
-      aspectRatio: "portrait",
-      instagramUrl: instagramUrl,
-    };
-
-    const updated = [newItem, ...galleryItems];
-    setGalleryItems(updated);
-    saveGalleryData(updated);
-
-    // Reset inputs
-    setNewItemTitle("");
-    setNewItemImage("");
-    setNewItemDesc("");
-    setNewItemNotice("Item successfully published to your live showcase!");
-    setTimeout(() => setNewItemNotice(""), 3500);
-  };
-
-  const handleDeleteGalleryItem = (id) => {
-    const updated = galleryItems.filter(item => item.id !== id);
-    setGalleryItems(updated);
-    saveGalleryData(updated);
-  };
-
-  const handleResetGallery = () => {
-    if (window.confirm("Reset gallery back to default starter collection?")) {
-      setGalleryItems(DEFAULT_GALLERY);
-      saveGalleryData(DEFAULT_GALLERY);
-    }
   };
 
   const currentLightboxItem = lightboxIndex !== null ? filteredGallery[lightboxIndex] : null;
@@ -2368,7 +2284,7 @@ export default function Portfolio() {
             </div>
             <div className="github-stat-pill">
               <span>Status:</span>
-              <span style={{ color: "#7ac57a" }}>Live Connected</span>
+              <span style={{ color: githubLive ? "#7ac57a" : "#b5a898" }}>{githubLive ? "Live from GitHub" : "Offline snapshot"}</span>
             </div>
           </div>
 
@@ -2427,16 +2343,7 @@ export default function Portfolio() {
             </p>
           </div>
 
-          {/* Dedicated Manager Button */}
           <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowGalleryManager(true)}
-              title="Add or manage images in the gallery"
-            >
-              <UploadIcon size={15} />
-              <span>Upload / Manage Photos</span>
-            </button>
             <a
               href={instagramUrl}
               target="_blank"
@@ -2499,33 +2406,24 @@ export default function Portfolio() {
         </div>
       </Section>
 
-      {/* FEATURE 5: STUDENTS WELFARE LEADERSHIP & IMPACT MILESTONES */}
+      {/* FEATURE 5: STUDENTS WELFARE (content edited from the admin panel -> src/data/content.json) */}
       <Section id="Social">
         <div className="section-label">Community & Leadership</div>
         <h2 className="section-title">
-          Students Welfare<br />
+          {welfare.organization}<br />
           <em>Leadership & Impact</em>
         </h2>
 
-        {/* Impact Numbers */}
-        <div className="impact-grid">
-          <div className="impact-card">
-            <span className="impact-number">Organizing</span>
-            <span className="impact-title">Current Role: President</span>
+        {welfare.stats?.length > 0 && (
+          <div className="impact-grid">
+            {welfare.stats.map((s, i) => (
+              <div key={i} className="impact-card">
+                <span className="impact-number">{s.value}</span>
+                <span className="impact-title">{s.label}</span>
+              </div>
+            ))}
           </div>
-          <div className="impact-card">
-            <span className="impact-number">500+</span>
-            <span className="impact-title">Students Supported</span>
-          </div>
-          <div className="impact-card">
-            <span className="impact-number">4+</span>
-            <span className="impact-title">Welfare Campaigns</span>
-          </div>
-          <div className="impact-card">
-            <span className="impact-number">15+</span>
-            <span className="impact-title">Executive Volunteers</span>
-          </div>
-        </div>
+        )}
 
         <div className="grid-2">
           <div>
@@ -2539,7 +2437,7 @@ export default function Portfolio() {
             >
               <div className="section-label" style={{ marginBottom: "0.6rem" }}>Executive Office</div>
               <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.7rem", color: "#f0e8d8", marginBottom: "0.4rem" }}>
-                Students Welfare
+                {welfare.organization}
               </div>
               <div
                 style={{
@@ -2551,44 +2449,26 @@ export default function Portfolio() {
                   fontWeight: 700,
                 }}
               >
-                Organizing President
+                {welfare.role}
               </div>
             </div>
 
             <p className="about-text" style={{ fontSize: "1.1rem", lineHeight: 1.9, color: "#c8bfb2", fontWeight: 300 }}>
-              True leadership combines technical competence with <strong>empathy and community service</strong>. As Organizing President at Students Welfare, I direct volunteer operations, coordinate student emergency support, and orchestrate university-wide welfare drives.
+              {welfare.intro}
             </p>
           </div>
 
           <div>
             <div className="section-label" style={{ marginBottom: "1rem" }}>Leadership Milestones</div>
             <div className="timeline-box">
-              <div className="timeline-item">
-                <div className="timeline-dot" />
-                <div className="timeline-date">2024 — Present</div>
-                <div className="timeline-role">Organizing President</div>
-                <p className="timeline-desc">
-                  Elected as Organizing President of Students Welfare. Presiding over committee meetings, structuring annual campus welfare programs, and facilitating academic relief funds.
-                </p>
-              </div>
-
-              <div className="timeline-item">
-                <div className="timeline-dot" />
-                <div className="timeline-date">2023 — 2024</div>
-                <div className="timeline-role">Event Logistics & Welfare Coordination</div>
-                <p className="timeline-desc">
-                  Directed inter-faculty coordination, student support booths, emergency blood donation networks, and university donation drives.
-                </p>
-              </div>
-
-              <div className="timeline-item">
-                <div className="timeline-dot" />
-                <div className="timeline-date">2023</div>
-                <div className="timeline-role">Community Outreach & Winter Aid</div>
-                <p className="timeline-desc">
-                  Spearheaded annual winter clothes drive and grassroots student orientation sessions across university departments.
-                </p>
-              </div>
+              {welfare.timeline.map((t, i) => (
+                <div key={i} className="timeline-item">
+                  <div className="timeline-dot" />
+                  <div className="timeline-date">{t.date}</div>
+                  <div className="timeline-role">{t.title}</div>
+                  <p className="timeline-desc">{t.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -2916,7 +2796,7 @@ export default function Portfolio() {
 
               <div>
                 <a
-                  href={currentLightboxItem.instagramUrl || instagramUrl}
+                  href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary"
@@ -2928,228 +2808,6 @@ export default function Portfolio() {
                 </a>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* FEATURE 3: DEDICATED GALLERY BACKEND / MANAGEMENT MODAL */}
-      {showGalleryManager && (
-        <div className="modal-overlay" onClick={() => setShowGalleryManager(false)}>
-          <div className="modal-box" style={{ maxWidth: "680px", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <UploadIcon size={20} />
-                <span>Gallery Management Portal</span>
-              </div>
-              <button
-                className="modal-close-btn"
-                onClick={() => setShowGalleryManager(false)}
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-
-            {/* Tab navigation */}
-            <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid rgba(212, 168, 83, 0.15)", paddingBottom: "0.8rem", marginBottom: "1.5rem" }}>
-              <button
-                className={`filter-btn ${managerTab === "add" ? "active" : ""}`}
-                onClick={() => setManagerTab("add")}
-              >
-                Upload & Add Photo
-              </button>
-              <button
-                className={`filter-btn ${managerTab === "list" ? "active" : ""}`}
-                onClick={() => setManagerTab("list")}
-              >
-                Active Items ({galleryItems.length})
-              </button>
-              <button
-                className={`filter-btn ${managerTab === "help" ? "active" : ""}`}
-                onClick={() => setManagerTab("help")}
-              >
-                Folder Guide
-              </button>
-            </div>
-
-            {newItemNotice && (
-              <div style={{ padding: "0.8rem 1rem", background: "rgba(212, 168, 83, 0.1)", border: "1px solid rgba(212, 168, 83, 0.3)", color: "#d4a853", fontFamily: "'Courier Prime', monospace", fontSize: "0.82rem", marginBottom: "1.2rem" }}>
-                {newItemNotice}
-              </div>
-            )}
-
-            {/* Tab 1: Upload / Add Form */}
-            {managerTab === "add" && (
-              <form onSubmit={handleAddGalleryItem}>
-                <div className="form-group">
-                  <label className="form-label">Photo Title</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Modern Vector Identity or Autumn Portrait"
-                    value={newItemTitle}
-                    onChange={(e) => setNewItemTitle(e.target.value)}
-                    className="form-input"
-                  />
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                  <div className="form-group">
-                    <label className="form-label">Category</label>
-                    <select
-                      value={newItemCategory}
-                      onChange={(e) => setNewItemCategory(e.target.value)}
-                      className="form-input"
-                    >
-                      <option value="Design">Design</option>
-                      <option value="Photography">Photography</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Subcategory / Tag</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Typographic Poster, Portrait, Nature"
-                      value={newItemSubcat}
-                      onChange={(e) => setNewItemSubcat(e.target.value)}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Upload Image from Device (or enter Path/URL)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="form-input"
-                    style={{ marginBottom: "0.6rem" }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Or enter path e.g. /gallery/my-photo.jpg"
-                    value={newItemImage}
-                    onChange={(e) => setNewItemImage(e.target.value)}
-                    className="form-input"
-                  />
-                  {newItemImage && (
-                    <div style={{ marginTop: "0.8rem", textAlign: "center", background: "#0a0907", padding: "0.8rem", border: "1px solid rgba(212,168,83,0.2)" }}>
-                      <img src={newItemImage} alt="Preview" style={{ maxHeight: "140px", maxWidth: "100%", objectFit: "contain" }} />
-                      <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.7rem", color: "#7a6e60", marginTop: "0.3rem" }}>Live Preview</div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Tools / Camera Used</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Adobe Illustrator, Sony 50mm, Canva"
-                    value={newItemTools}
-                    onChange={(e) => setNewItemTools(e.target.value)}
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Short Description</label>
-                  <textarea
-                    placeholder="Artistic concept or background notes..."
-                    value={newItemDesc}
-                    onChange={(e) => setNewItemDesc(e.target.value)}
-                    className="form-textarea"
-                    style={{ minHeight: "80px" }}
-                  />
-                </div>
-
-                <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
-                  <button type="button" className="btn btn-outline" onClick={() => setShowGalleryManager(false)}>
-                    Close
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    <UploadIcon size={15} />
-                    <span>Publish to Profile</span>
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Tab 2: Manage Current Items */}
-            {managerTab === "list" && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#8a7e72" }}>
-                    Total items currently live: {galleryItems.length}
-                  </span>
-                  <button
-                    onClick={handleResetGallery}
-                    style={{ background: "transparent", border: "none", color: "#d4a853", fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", cursor: "pointer", textDecoration: "underline" }}
-                  >
-                    Reset to Starter Collection
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem", maxHeight: "380px", overflowY: "auto" }}>
-                  {galleryItems.map((item) => (
-                    <div
-                      key={item.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "0.8rem 1rem",
-                        background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(212,168,83,0.15)",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                        <img src={item.image} alt={item.title} style={{ width: "45px", height: "45px", objectFit: "cover", border: "1px solid rgba(212,168,83,0.2)" }} />
-                        <div>
-                          <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1rem", color: "#f0e8d8" }}>{item.title}</div>
-                          <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.7rem", color: "#d4a853" }}>{item.category} // {item.subcategory}</div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteGalleryItem(item.id)}
-                        className="contact-action-btn"
-                        style={{ color: "#e07a7a", borderColor: "rgba(224,122,122,0.3)" }}
-                        title="Delete item"
-                      >
-                        <TrashIcon size={14} />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tab 3: Dedicated Folder Instructions */}
-            {managerTab === "help" && (
-              <div style={{ fontSize: "0.98rem", color: "#c4b9a9", lineHeight: 1.8 }}>
-                <p style={{ marginBottom: "1rem" }}>
-                  <strong>How the dedicated folder works:</strong>
-                </p>
-                <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(212,168,83,0.2)", padding: "1.2rem", fontFamily: "'Courier Prime', monospace", fontSize: "0.82rem", marginBottom: "1rem" }}>
-                  📁 Folder Path: <span style={{ color: "#d4a853" }}>my-portfolio/public/gallery/</span>
-                </div>
-                <ol style={{ paddingLeft: "1.2rem", marginBottom: "1.2rem" }}>
-                  <li style={{ marginBottom: "0.5rem" }}>
-                    Copy your JPG, PNG, or SVG image files directly into your project's <code>public/gallery/</code> folder (e.g. <code>my-photo.jpg</code>).
-                  </li>
-                  <li style={{ marginBottom: "0.5rem" }}>
-                    In the <strong>Upload & Add Photo</strong> tab above, enter <code>/gallery/my-photo.jpg</code> in the image path field.
-                  </li>
-                  <li>
-                    Alternatively, click the file upload button to directly choose and showcase any photo from your computer!
-                  </li>
-                </ol>
-                <p style={{ fontSize: "0.85rem", color: "#8a7e72" }}>
-                  Any item you add automatically saves to your browser storage and updates the live portfolio immediately.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       )}
