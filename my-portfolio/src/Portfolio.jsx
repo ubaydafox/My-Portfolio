@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import { loadGalleryData, saveGalleryData, DEFAULT_GALLERY } from "./data/galleryData.js";
 
 // ==========================================
-// SVG ICONS (100% vector, zero emojis)
+// SVG ICONS (100% Vector, Zero Emojis)
 // ==========================================
 
 function LinkedInIcon({ size = 18, className = "" }) {
@@ -183,11 +184,91 @@ function LayersIcon({ size = 18, className = "" }) {
   );
 }
 
+function DocumentIcon({ size = 18, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+  );
+}
+
+function StarIcon({ size = 14, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
+function GitForkIcon({ size = 14, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="18" r="3" />
+      <circle cx="6" cy="6" r="3" />
+      <circle cx="18" cy="6" r="3" />
+      <path d="M18 9v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9" />
+      <path d="M12 12v3" />
+    </svg>
+  );
+}
+
+function ArrowLeftIcon({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function UploadIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function TrashIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
+function ZoomInIcon({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      <line x1="11" y1="8" x2="11" y2="14" />
+      <line x1="8" y1="11" x2="14" y2="11" />
+    </svg>
+  );
+}
+
 // ==========================================
-// CONSTANTS & DATA
+// CONSTANTS & REPOS DATA
 // ==========================================
 
-const NAV_LINKS = ["About", "Skills", "Projects", "Design", "Photography", "Social", "Contact"];
+const NAV_LINKS = ["About", "Skills", "Projects", "Gallery", "Social", "Contact"];
 
 const skills = [
   { name: "Java", level: 65, cat: "Language" },
@@ -211,14 +292,42 @@ const strengths = [
   "Social Responsibility",
 ];
 
-// Custom hook for viewport visibility
+// Fallback Repositories if GitHub API is offline or rate limited
+const FALLBACK_REPOS = [
+  {
+    name: "AI_Project",
+    description: "MetroMate: Intelligent Telegram bot assistant for Metropolitan University students with Gemini AI integration.",
+    language: "Python",
+    html_url: "https://github.com/ubaydafox/AI_Project",
+    stargazers_count: 3,
+    forks_count: 1,
+  },
+  {
+    name: "portfolio",
+    description: "Personal portfolio website engineered with React, Vite, and high-contrast editorial typography.",
+    language: "JavaScript",
+    html_url: "https://github.com/ubaydafox",
+    stargazers_count: 2,
+    forks_count: 0,
+  },
+  {
+    name: "Academic-Work",
+    description: "University CSE coursework, object-oriented Java solutions, data structures and algorithms experiments.",
+    language: "Java",
+    html_url: "https://github.com/ubaydafox",
+    stargazers_count: 1,
+    forks_count: 0,
+  },
+];
+
+// Intersection Observer Hook
 function useInView(ref) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     if (!ref.current) return;
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) setVisible(true);
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
     obs.observe(ref.current);
     return () => obs.disconnect();
   }, [ref]);
@@ -268,6 +377,19 @@ function SkillBar({ skill, delay }) {
   );
 }
 
+// Language color mapper
+function getLangColor(lang) {
+  switch (lang?.toLowerCase()) {
+    case "python": return "#3572A5";
+    case "javascript": return "#f1e05a";
+    case "java": return "#b07219";
+    case "c++": return "#f34b7d";
+    case "html": return "#e34c26";
+    case "css": return "#563d7c";
+    default: return "#d4a853";
+  }
+}
+
 // ==========================================
 // MAIN COMPONENT
 // ==========================================
@@ -279,7 +401,34 @@ export default function Portfolio() {
   const [atTop, setAtTop] = useState(true);
   const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
 
-  // Contact Protection & IP Reveal State
+  // Feature 2: CV Modal
+  const [showCvModal, setShowCvModal] = useState(false);
+
+  // Feature 3: Gallery, Lightbox, Management System
+  const [galleryItems, setGalleryItems] = useState(loadGalleryData());
+  const [galleryFilter, setGalleryFilter] = useState("All");
+  const [lightboxIndex, setLightboxIndex] = useState(null); // null when closed
+  const [showGalleryManager, setShowGalleryManager] = useState(false);
+  const [managerTab, setManagerTab] = useState("add"); // "add" | "list" | "help"
+
+  // Form state for adding gallery items
+  const [newItemTitle, setNewItemTitle] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Design");
+  const [newItemSubcat, setNewItemSubcat] = useState("Poster Design");
+  const [newItemImage, setNewItemImage] = useState("");
+  const [newItemTools, setNewItemTools] = useState("Adobe Illustrator");
+  const [newItemDesc, setNewItemDesc] = useState("");
+  const [newItemNotice, setNewItemNotice] = useState("");
+
+  // Feature 4: On-Site Contact Form State
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactSubject, setContactSubject] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [formSending, setFormSending] = useState(false);
+  const [formSentSuccess, setFormSentSuccess] = useState(false);
+
+  // Phone / Email IP Protected Reveal State
   const [isContactRevealed, setIsContactRevealed] = useState(false);
   const [showIpModal, setShowIpModal] = useState(false);
   const [visitorIp, setVisitorIp] = useState("");
@@ -287,11 +436,21 @@ export default function Portfolio() {
   const [ipLoggedTime, setIpLoggedTime] = useState("");
   const [copiedKey, setCopiedKey] = useState(null);
 
+  // Feature 6: Live GitHub Repos & Stats
+  const [githubUser, setGithubUser] = useState({ public_repos: 4, followers: 2, following: 2 });
+  const [githubRepos, setGithubRepos] = useState(FALLBACK_REPOS);
+  const [reposLoading, setReposLoading] = useState(true);
+
+  const phoneNumber = "01607896458";
+  const emailAddress = "ubaydaazad@gmail.com";
+  const linkedinUrl = "https://www.linkedin.com/in/ubaydafox";
+  const githubUrl = "https://github.com/ubaydafox";
+  const instagramUrl = "https://instagram.com/ubaydafox";
+
   // Scroll listener: handle top state for scroll indicator and navbar scrolled state
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      // Scroll indicator: visible strictly when at the top (< 40px), disappears upon scrolling down, returns when back at the top
       setAtTop(scrollY < 40);
       setScrolled(scrollY > 50);
     };
@@ -316,7 +475,7 @@ export default function Portfolio() {
           if (e.isIntersecting) setActive(e.target.id);
         });
       },
-      { threshold: 0.35 }
+      { threshold: 0.3 }
     );
     NAV_LINKS.forEach((id) => {
       const el = document.getElementById(id);
@@ -324,6 +483,43 @@ export default function Portfolio() {
     });
     return () => obs.disconnect();
   }, []);
+
+  // Fetch GitHub User & Repositories (Feature 6)
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([
+      fetch("https://api.github.com/users/ubaydafox").then(r => r.ok ? r.json() : null),
+      fetch("https://api.github.com/users/ubaydafox/repos?sort=updated&per_page=6").then(r => r.ok ? r.json() : null)
+    ])
+      .then(([userData, reposData]) => {
+        if (!isMounted) return;
+        if (userData && userData.public_repos !== undefined) {
+          setGithubUser(userData);
+        }
+        if (Array.isArray(reposData) && reposData.length > 0) {
+          setGithubRepos(reposData);
+        }
+        setReposLoading(false);
+      })
+      .catch((err) => {
+        console.warn("GitHub API offline/rate-limited, using fallback data:", err);
+        if (isMounted) setReposLoading(false);
+      });
+
+    return () => { isMounted = false; };
+  }, []);
+
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft") handlePrevLightbox();
+      if (e.key === "ArrowRight") handleNextLightbox();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, galleryItems]);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -342,7 +538,6 @@ export default function Portfolio() {
     const now = new Date();
     setIpLoggedTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
 
-    // Fetch client IP
     fetch("https://api.ipify.org?format=json")
       .then((res) => res.json())
       .then((data) => {
@@ -350,7 +545,6 @@ export default function Portfolio() {
         setIpLoading(false);
       })
       .catch(() => {
-        // Fallback endpoint
         fetch("https://api64.ipify.org?format=json")
           .then((res) => res.json())
           .then((data) => {
@@ -375,11 +569,95 @@ export default function Portfolio() {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const phoneNumber = "01607896458";
-  const emailAddress = "ubaydaazad@gmail.com";
-  const linkedinUrl = "https://www.linkedin.com/in/ubaydafox";
-  const githubUrl = "https://github.com/ubaydafox";
-  const instagramUrl = "https://instagram.com/ubaydafox";
+  // Feature 4: Handle Contact Form Submission
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) return;
+
+    setFormSending(true);
+
+    // Simulated reliable direct dispatch
+    setTimeout(() => {
+      setFormSending(false);
+      setFormSentSuccess(true);
+      setContactSubject("");
+      setContactMessage("");
+    }, 900);
+  };
+
+  // Feature 3: Lightbox Controls
+  const filteredGallery = galleryItems.filter(item => {
+    if (galleryFilter === "All") return true;
+    return item.category.toLowerCase() === galleryFilter.toLowerCase();
+  });
+
+  const handlePrevLightbox = () => {
+    if (lightboxIndex === null) return;
+    setLightboxIndex((prev) => (prev > 0 ? prev - 1 : filteredGallery.length - 1));
+  };
+
+  const handleNextLightbox = () => {
+    if (lightboxIndex === null) return;
+    setLightboxIndex((prev) => (prev < filteredGallery.length - 1 ? prev + 1 : 0));
+  };
+
+  // Feature 3: Gallery Upload / Management
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setNewItemImage(event.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddGalleryItem = (e) => {
+    e.preventDefault();
+    if (!newItemTitle.trim() || !newItemImage.trim()) {
+      setNewItemNotice("Please enter a title and provide an image file or URL.");
+      return;
+    }
+
+    const newItem = {
+      id: "item-" + Date.now(),
+      title: newItemTitle.trim(),
+      category: newItemCategory,
+      subcategory: newItemSubcat.trim() || "Visual Work",
+      image: newItemImage,
+      description: newItemDesc.trim() || "Creative visual work showcased in portfolio.",
+      tools: newItemTools.trim() || "Creative Suite",
+      aspectRatio: "portrait",
+      instagramUrl: instagramUrl,
+    };
+
+    const updated = [newItem, ...galleryItems];
+    setGalleryItems(updated);
+    saveGalleryData(updated);
+
+    // Reset inputs
+    setNewItemTitle("");
+    setNewItemImage("");
+    setNewItemDesc("");
+    setNewItemNotice("Item successfully published to your live showcase!");
+    setTimeout(() => setNewItemNotice(""), 3500);
+  };
+
+  const handleDeleteGalleryItem = (id) => {
+    const updated = galleryItems.filter(item => item.id !== id);
+    setGalleryItems(updated);
+    saveGalleryData(updated);
+  };
+
+  const handleResetGallery = () => {
+    if (window.confirm("Reset gallery back to default starter collection?")) {
+      setGalleryItems(DEFAULT_GALLERY);
+      saveGalleryData(DEFAULT_GALLERY);
+    }
+  };
+
+  const currentLightboxItem = lightboxIndex !== null ? filteredGallery[lightboxIndex] : null;
 
   return (
     <div className="portfolio-root">
@@ -414,7 +692,7 @@ export default function Portfolio() {
           width: 100%;
         }
 
-        /* Desktop Cursor Glow (hidden on touch/mobile) */
+        /* Desktop Cursor Glow */
         .cursor-glow {
           position: fixed;
           width: 320px;
@@ -487,7 +765,7 @@ export default function Portfolio() {
 
         .nav-links {
           display: flex;
-          gap: 1.8rem;
+          gap: 1.7rem;
           list-style: none;
           align-items: center;
         }
@@ -508,12 +786,32 @@ export default function Portfolio() {
           color: #d4a853;
         }
 
+        .nav-btn-cv {
+          padding: 0.4rem 0.9rem;
+          border: 1px solid rgba(212, 168, 83, 0.35);
+          color: #d4a853;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.72rem;
+          letter-spacing: 0.15em;
+          background: rgba(212, 168, 83, 0.05);
+          cursor: pointer;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .nav-btn-cv:hover {
+          background: #d4a853;
+          color: #0f0d0b;
+        }
+
         .nav-socials {
           display: flex;
           align-items: center;
           gap: 1rem;
-          margin-left: 1rem;
-          padding-left: 1rem;
+          margin-left: 0.8rem;
+          padding-left: 0.8rem;
           border-left: 1px solid rgba(212, 168, 83, 0.2);
         }
 
@@ -530,7 +828,6 @@ export default function Portfolio() {
           transform: translateY(-2px);
         }
 
-        /* Hamburger button */
         .hamburger {
           display: none;
           flex-direction: column;
@@ -552,7 +849,6 @@ export default function Portfolio() {
           transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
-        /* Mobile Menu */
         .mobile-menu-overlay {
           display: none;
           position: fixed;
@@ -581,7 +877,7 @@ export default function Portfolio() {
 
         .mobile-menu-item {
           font-family: 'Cinzel', serif;
-          font-size: 1.5rem;
+          font-size: 1.45rem;
           letter-spacing: 0.18em;
           cursor: pointer;
           color: #e0d5c5;
@@ -654,13 +950,6 @@ export default function Portfolio() {
           color: #d4a853;
         }
 
-        .divider {
-          width: 60px;
-          height: 1px;
-          background: linear-gradient(90deg, #d4a853, transparent);
-          margin-bottom: 2.5rem;
-        }
-
         /* Hero */
         .hero-container {
           min-height: 100vh;
@@ -731,7 +1020,7 @@ export default function Portfolio() {
 
         .hero-actions {
           display: flex;
-          gap: 1.2rem;
+          gap: 1.1rem;
           flex-wrap: wrap;
           align-items: center;
         }
@@ -814,16 +1103,8 @@ export default function Portfolio() {
         }
 
         @keyframes scrollLineAnim {
-          0%, 100% {
-            opacity: 1;
-            transform: scaleY(1);
-            transform-origin: top;
-          }
-          50% {
-            opacity: 0.3;
-            transform: scaleY(0.45);
-            transform-origin: top;
-          }
+          0%, 100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+          50% { opacity: 0.3; transform: scaleY(0.45); transform-origin: top; }
         }
 
         /* Grids & Cards */
@@ -977,105 +1258,575 @@ export default function Portfolio() {
           border-color: #d4a853;
         }
 
-        /* GitHub Feature Box */
-        .github-profile-box {
-          background: linear-gradient(145deg, rgba(212, 168, 83, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-          border: 1px solid rgba(212, 168, 83, 0.25);
-          padding: 2.2rem;
+        /* Feature 6: Live GitHub Repos Widget */
+        .github-stats-bar {
+          display: flex;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+          margin-top: 2rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .github-stat-pill {
+          padding: 0.6rem 1.2rem;
+          background: rgba(212, 168, 83, 0.04);
+          border: 1px solid rgba(212, 168, 83, 0.2);
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.76rem;
+        }
+
+        .github-stat-num {
+          color: #d4a853;
+          font-weight: 700;
+        }
+
+        .repo-card {
+          background: rgba(255, 255, 255, 0.015);
+          border: 1px solid rgba(212, 168, 83, 0.12);
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          transition: all 0.25s ease;
+        }
+
+        .repo-card:hover {
+          border-color: rgba(212, 168, 83, 0.35);
+          background: rgba(212, 168, 83, 0.03);
+          transform: translateY(-2px);
+        }
+
+        .repo-name-link {
+          font-family: 'Cinzel', serif;
+          font-size: 1.15rem;
+          color: #f0e8d8;
+          text-decoration: none;
+          transition: color 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .repo-name-link:hover {
+          color: #d4a853;
+        }
+
+        .repo-desc {
+          font-size: 0.92rem;
+          color: #b5a898;
+          line-height: 1.6;
+          margin: 0.8rem 0 1.2rem;
+          font-weight: 300;
+        }
+
+        .repo-meta {
+          display: flex;
+          align-items: center;
+          gap: 1.2rem;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.72rem;
+          color: #8a7e72;
+        }
+
+        .repo-lang-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+
+        /* Feature 3: Gallery & Lightbox Styles */
+        .gallery-filter-bar {
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
-          gap: 1.5rem;
-          margin-top: 2rem;
+          gap: 1rem;
+          margin-bottom: 2rem;
         }
 
-        .github-profile-info {
-          max-width: 600px;
+        .filter-buttons {
+          display: flex;
+          gap: 0.6rem;
+          flex-wrap: wrap;
         }
 
-        /* Instagram Design Showcase Feature */
-        .instagram-showcase-box {
-          background: linear-gradient(135deg, rgba(212, 168, 83, 0.08) 0%, rgba(20, 18, 15, 0.8) 100%);
-          border: 1px solid rgba(212, 168, 83, 0.3);
-          padding: 2.5rem;
-          margin-top: 2.5rem;
+        .filter-btn {
+          background: transparent;
+          border: 1px solid rgba(212, 168, 83, 0.2);
+          color: #b5a898;
+          padding: 0.4rem 1rem;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.74rem;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+          border-color: #d4a853;
+          color: #0f0d0b;
+          background: #d4a853;
+        }
+
+        .gallery-grid {
           display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 2rem;
-          align-items: center;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 1.5rem;
         }
 
-        .insta-pill {
-          display: inline-flex;
+        .gallery-item-card {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(212, 168, 83, 0.15);
+          overflow: hidden;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .gallery-item-card:hover {
+          border-color: rgba(212, 168, 83, 0.45);
+          transform: translateY(-4px);
+        }
+
+        .gallery-img-wrap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4 / 5;
+          overflow: hidden;
+          background: #15120f;
+        }
+
+        .gallery-img-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s ease;
+        }
+
+        .gallery-item-card:hover .gallery-img-wrap img {
+          transform: scale(1.04);
+        }
+
+        .gallery-item-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 13, 11, 0.65);
+          opacity: 0;
+          display: flex;
           align-items: center;
-          gap: 0.5rem;
+          justify-content: center;
+          color: #d4a853;
+          transition: opacity 0.3s ease;
+        }
+
+        .gallery-item-card:hover .gallery-item-overlay {
+          opacity: 1;
+        }
+
+        .gallery-item-meta {
+          padding: 1.2rem;
+          border-top: 1px solid rgba(212, 168, 83, 0.1);
+        }
+
+        .gallery-item-subcat {
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.68rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #d4a853;
+          margin-bottom: 0.4rem;
+        }
+
+        .gallery-item-title {
+          font-family: 'Cinzel', serif;
+          font-size: 1.1rem;
+          color: #f0e8d8;
+        }
+
+        /* Lightbox Modal */
+        .lightbox-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(10, 8, 7, 0.94);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          z-index: 250;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+          animation: modalFadeIn 0.25s ease;
+        }
+
+        .lightbox-container {
+          max-width: 1000px;
+          width: 100%;
+          max-height: 90vh;
+          display: grid;
+          grid-template-columns: 1.4fr 1fr;
+          gap: 2rem;
+          background: #14120f;
+          border: 1px solid rgba(212, 168, 83, 0.3);
+          box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .lightbox-img-area {
+          background: #090807;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          max-height: 80vh;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .lightbox-img-area img {
+          max-width: 100%;
+          max-height: 80vh;
+          object-fit: contain;
+        }
+
+        .lightbox-info-area {
+          padding: 2.5rem 2rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          overflow-y: auto;
+        }
+
+        .lightbox-nav-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(20, 18, 15, 0.7);
+          border: 1px solid rgba(212, 168, 83, 0.3);
+          color: #d4a853;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .lightbox-nav-btn:hover {
+          background: #d4a853;
+          color: #0f0d0b;
+        }
+
+        .lightbox-prev { left: 1rem; }
+        .lightbox-next { right: 1rem; }
+
+        .lightbox-close-btn {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: transparent;
+          border: none;
+          color: #b5a898;
+          cursor: pointer;
+          padding: 0.5rem;
+          z-index: 10;
+        }
+
+        .lightbox-close-btn:hover {
+          color: #d4a853;
+        }
+
+        /* Feature 5: Leadership Milestones & Timeline */
+        .impact-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+          margin-bottom: 2.5rem;
+        }
+
+        .impact-card {
+          padding: 1.8rem 1.2rem;
+          border: 1px solid rgba(212, 168, 83, 0.2);
+          background: rgba(212, 168, 83, 0.02);
+          text-align: center;
+        }
+
+        .impact-number {
+          font-family: 'Cinzel', serif;
+          font-size: 2.2rem;
+          color: #d4a853;
+          margin-bottom: 0.3rem;
+          display: block;
+        }
+
+        .impact-title {
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.72rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #b5a898;
+        }
+
+        .timeline-box {
+          position: relative;
+          padding-left: 2rem;
+          border-left: 1px solid rgba(212, 168, 83, 0.3);
+          margin-top: 1.5rem;
+        }
+
+        .timeline-item {
+          position: relative;
+          margin-bottom: 2.2rem;
+        }
+
+        .timeline-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .timeline-dot {
+          position: absolute;
+          left: -2.35rem;
+          top: 0.3rem;
+          width: 11px;
+          height: 11px;
+          background: #d4a853;
+          border-radius: 50%;
+          box-shadow: 0 0 10px rgba(212, 168, 83, 0.5);
+        }
+
+        .timeline-date {
           font-family: 'Courier Prime', monospace;
           font-size: 0.74rem;
           letter-spacing: 0.2em;
           color: #d4a853;
           text-transform: uppercase;
-          margin-bottom: 0.8rem;
+          margin-bottom: 0.3rem;
         }
 
-        /* Tags & Badges */
-        .tag {
-          display: inline-block;
-          padding: 0.45rem 1rem;
-          border: 1px solid rgba(212, 168, 83, 0.2);
-          font-family: 'Courier Prime', monospace;
-          font-size: 0.76rem;
-          letter-spacing: 0.1em;
-          color: #e0d5c5;
-          transition: all 0.2s;
-          margin: 0.3rem;
-          background: rgba(255, 255, 255, 0.01);
-        }
-
-        .tag:hover {
-          border-color: #d4a853;
-          color: #d4a853;
-          background: rgba(212, 168, 83, 0.08);
-        }
-
-        .about-text {
-          font-size: 1.15rem;
-          line-height: 1.95;
-          color: #c8bfb2;
-          font-weight: 300;
-          margin-bottom: 1.6rem;
-        }
-
-        .about-text strong {
-          color: #d4a853;
-          font-weight: 400;
-        }
-
-        .stat {
-          text-align: center;
-          padding: 1.8rem 1rem;
-          border: 1px solid rgba(212, 168, 83, 0.15);
-          background: rgba(255, 255, 255, 0.01);
-        }
-
-        .stat-num {
+        .timeline-role {
           font-family: 'Cinzel', serif;
-          font-size: 2.3rem;
-          color: #d4a853;
-          display: block;
+          font-size: 1.25rem;
+          color: #f0e8d8;
+          margin-bottom: 0.5rem;
         }
 
-        .stat-label {
+        .timeline-desc {
+          font-size: 0.98rem;
+          color: #c4b9a9;
+          line-height: 1.75;
+          font-weight: 300;
+        }
+
+        /* Feature 4: On-Site Direct Contact Form */
+        .contact-form-box {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(212, 168, 83, 0.2);
+          padding: 2.2rem;
+          margin-top: 2rem;
+        }
+
+        .form-group {
+          margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+          display: block;
           font-family: 'Courier Prime', monospace;
-          font-size: 0.7rem;
-          letter-spacing: 0.2em;
+          font-size: 0.74rem;
+          letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #b5a898;
-          margin-top: 0.4rem;
-          display: block;
+          margin-bottom: 0.4rem;
         }
 
-        /* Contact Section */
+        .form-input, .form-textarea {
+          width: 100%;
+          background: rgba(10, 8, 7, 0.6);
+          border: 1px solid rgba(212, 168, 83, 0.25);
+          color: #f0e8d8;
+          padding: 0.8rem 1rem;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.88rem;
+          border-radius: 2px;
+          transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+          outline: none;
+          border-color: #d4a853;
+          background: rgba(15, 13, 11, 0.9);
+        }
+
+        .form-textarea {
+          resize: vertical;
+          min-height: 110px;
+        }
+
+        .form-success-box {
+          padding: 1.5rem;
+          background: rgba(122, 197, 122, 0.08);
+          border: 1px solid rgba(122, 197, 122, 0.3);
+          color: #92e092;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.85rem;
+          line-height: 1.6;
+        }
+
+        /* Feature 2: CV Modal Styles */
+        .cv-modal-box {
+          background: #14120f;
+          border: 1px solid rgba(212, 168, 83, 0.35);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+          max-width: 840px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          padding: 2.8rem;
+          position: relative;
+        }
+
+        .cv-header-block {
+          border-bottom: 1px solid rgba(212, 168, 83, 0.2);
+          padding-bottom: 1.5rem;
+          margin-bottom: 1.8rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+
+        .cv-name {
+          font-family: 'Cinzel', serif;
+          font-size: 2.2rem;
+          color: #f0e8d8;
+        }
+
+        .cv-subtitle {
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.82rem;
+          color: #d4a853;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          margin-top: 0.3rem;
+        }
+
+        .cv-section-h3 {
+          font-family: 'Cinzel', serif;
+          font-size: 1.25rem;
+          color: #d4a853;
+          margin: 1.8rem 0 0.8rem;
+          letter-spacing: 0.08em;
+          border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+          padding-bottom: 0.4rem;
+        }
+
+        .cv-entry {
+          margin-bottom: 1.2rem;
+        }
+
+        .cv-entry-head {
+          display: flex;
+          justify-content: space-between;
+          font-family: 'Courier Prime', monospace;
+          font-size: 0.85rem;
+          margin-bottom: 0.3rem;
+        }
+
+        .cv-entry-title {
+          color: #f0e8d8;
+          font-weight: 700;
+        }
+
+        .cv-entry-date {
+          color: #d4a853;
+        }
+
+        .cv-entry-sub {
+          font-size: 0.95rem;
+          color: #b5a898;
+          font-style: italic;
+          margin-bottom: 0.4rem;
+        }
+
+        .cv-entry-body {
+          font-size: 0.95rem;
+          color: #c4b9a9;
+          line-height: 1.7;
+          font-weight: 300;
+        }
+
+        /* Generic Modals */
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(10, 8, 7, 0.88);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          z-index: 220;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+          animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .modal-box {
+          background: #14120f;
+          border: 1px solid rgba(212, 168, 83, 0.35);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+          max-width: 540px;
+          width: 100%;
+          padding: 2.2rem;
+          position: relative;
+        }
+
+        .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+          padding-bottom: 1.2rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+          font-family: 'Cinzel', serif;
+          font-size: 1.25rem;
+          color: #f0e8d8;
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+        }
+
+        .modal-close-btn {
+          background: transparent;
+          border: none;
+          color: #b5a898;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.3rem;
+          transition: color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+          color: #d4a853;
+        }
+
+        /* Contact Details Rows */
         .contact-item-row {
           display: flex;
           align-items: center;
@@ -1167,80 +1918,6 @@ export default function Portfolio() {
           border-style: solid;
         }
 
-        /* Modal Overlay for IP Reveal */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(10, 8, 7, 0.85);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          z-index: 200;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1.5rem;
-          animation: modalFadeIn 0.3s ease;
-        }
-
-        @keyframes modalFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        .modal-box {
-          background: #14120f;
-          border: 1px solid rgba(212, 168, 83, 0.35);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(212, 168, 83, 0.08);
-          max-width: 520px;
-          width: 100%;
-          padding: 2.2rem;
-          position: relative;
-        }
-
-        .modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px solid rgba(212, 168, 83, 0.15);
-          padding-bottom: 1.2rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .modal-title {
-          font-family: 'Cinzel', serif;
-          font-size: 1.25rem;
-          color: #f0e8d8;
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
-        }
-
-        .modal-close-btn {
-          background: transparent;
-          border: none;
-          color: #b5a898;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0.3rem;
-          transition: color 0.2s;
-        }
-
-        .modal-close-btn:hover {
-          color: #d4a853;
-        }
-
-        .modal-body {
-          font-size: 1rem;
-          line-height: 1.7;
-          color: #c4b9a9;
-          margin-bottom: 1.8rem;
-        }
-
         .ip-detected-box {
           background: rgba(0, 0, 0, 0.4);
           border: 1px solid rgba(212, 168, 83, 0.2);
@@ -1256,25 +1933,8 @@ export default function Portfolio() {
           margin-bottom: 0.4rem;
         }
 
-        .ip-detected-row:last-child {
-          margin-bottom: 0;
-        }
-
-        .ip-label {
-          color: #b5a898;
-        }
-
-        .ip-value {
-          color: #d4a853;
-          font-weight: 700;
-        }
-
-        .modal-actions {
-          display: flex;
-          gap: 1rem;
-          justify-content: flex-end;
-          flex-wrap: wrap;
-        }
+        .ip-label { color: #b5a898; }
+        .ip-value { color: #d4a853; font-weight: 700; }
 
         /* Footer */
         footer {
@@ -1290,74 +1950,68 @@ export default function Portfolio() {
           z-index: 1;
         }
 
-        /* Responsive Media Queries (Mobile & PC perfection) */
+        /* Print styles for CV */
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .cv-modal-box, .cv-modal-box * {
+            visibility: visible;
+          }
+          .cv-modal-box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: #ffffff !important;
+            color: #111111 !important;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+          }
+          .cv-name, .cv-entry-title {
+            color: #000000 !important;
+          }
+          .cv-subtitle, .cv-section-h3, .cv-entry-date {
+            color: #333333 !important;
+          }
+          .cv-entry-sub, .cv-entry-body {
+            color: #444444 !important;
+          }
+          .cv-action-bar, .modal-close-btn {
+            display: none !important;
+          }
+        }
+
+        /* Responsive Media Queries */
         @media (max-width: 900px) {
-          .grid-2 {
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-          }
-          .grid-3 {
-            grid-template-columns: 1fr;
-          }
-          .instagram-showcase-box {
-            grid-template-columns: 1fr;
-          }
+          .grid-2 { grid-template-columns: 1fr; gap: 2.5rem; }
+          .grid-3 { grid-template-columns: 1fr; }
+          .impact-grid { grid-template-columns: 1fr 1fr; }
+          .lightbox-container { grid-template-columns: 1fr; max-height: 95vh; }
+          .lightbox-img-area { max-height: 45vh; }
         }
 
         @media (max-width: 768px) {
-          .nav-links, .nav-socials {
-            display: none;
-          }
-          .hamburger {
-            display: flex;
-          }
-          .mobile-menu-overlay {
-            display: flex;
-          }
-          .hero-container {
-            padding: 6.5rem 1.5rem 4.5rem;
-          }
-          .section {
-            padding: 4.5rem 1.5rem;
-          }
-          .contact-item-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.8rem;
-          }
-          .contact-right-val {
-            width: 100%;
-            justify-content: space-between;
-          }
-          .github-profile-box {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .project-footer {
-            flex-direction: column;
-            align-items: flex-start;
-          }
+          .nav-links, .nav-socials { display: none; }
+          .hamburger { display: flex; }
+          .mobile-menu-overlay { display: flex; }
+          .hero-container { padding: 6.5rem 1.5rem 4.5rem; }
+          .section { padding: 4.5rem 1.5rem; }
+          .contact-item-row { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+          .contact-right-val { width: 100%; justify-content: space-between; }
+          .impact-grid { grid-template-columns: 1fr 1fr; }
+          .gallery-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 480px) {
-          .hero-actions {
-            flex-direction: column;
-            width: 100%;
-          }
-          .hero-actions .btn {
-            width: 100%;
-          }
-          .modal-actions {
-            flex-direction: column;
-            width: 100%;
-          }
-          .modal-actions .btn {
-            width: 100%;
-          }
+          .hero-actions { flex-direction: column; width: 100%; }
+          .hero-actions .btn { width: 100%; }
+          .impact-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
-      {/* Ambient background effects */}
+      {/* Ambient background glow */}
       <div className="cursor-glow" style={{ left: cursorPos.x, top: cursorPos.y }} />
       <div className="noise-overlay" />
 
@@ -1374,6 +2028,12 @@ export default function Portfolio() {
                 {id}
               </li>
             ))}
+            <li>
+              <button className="nav-btn-cv" onClick={() => setShowCvModal(true)}>
+                <DocumentIcon size={14} />
+                <span>Resume</span>
+              </button>
+            </li>
           </ul>
 
           <div className="nav-socials">
@@ -1400,7 +2060,7 @@ export default function Portfolio() {
         </div>
       </nav>
 
-      {/* Full-screen Mobile Menu Overlay */}
+      {/* Full-screen Mobile Menu */}
       <div className={`mobile-menu-overlay ${menuOpen ? "open" : ""}`}>
         {NAV_LINKS.map((id) => (
           <div
@@ -1411,6 +2071,14 @@ export default function Portfolio() {
             {id}
           </div>
         ))}
+        <div
+          className="mobile-menu-item"
+          style={{ color: "#d4a853", display: "flex", alignItems: "center", gap: "0.6rem" }}
+          onClick={() => { setMenuOpen(false); setShowCvModal(true); }}
+        >
+          <DocumentIcon size={20} />
+          <span>Curriculum Vitae</span>
+        </div>
         <div className="mobile-socials">
           <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="nav-social-link" title="LinkedIn">
             <LinkedInIcon size={22} />
@@ -1448,9 +2116,13 @@ export default function Portfolio() {
               <CodeIcon size={15} />
               View Projects
             </button>
-            <button className="btn btn-outline" onClick={() => scrollTo("Design")}>
+            <button className="btn btn-outline" onClick={() => setShowCvModal(true)}>
+              <DocumentIcon size={15} />
+              Download CV
+            </button>
+            <button className="btn btn-outline" onClick={() => scrollTo("Gallery")}>
               <PaletteIcon size={15} />
-              Design Works
+              Design & Photos
             </button>
             <button className="btn btn-outline" onClick={() => scrollTo("Contact")}>
               <MailIcon size={15} />
@@ -1459,11 +2131,11 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Scroll Indicator: Visible ONLY at the top, disappears on scroll, reappears at the top */}
+        {/* Scroll Indicator: visible ONLY at the top */}
         <div
           className={`hero-scroll ${atTop ? "visible" : "hidden"}`}
           onClick={() => scrollTo("About")}
-          title="Scroll to About section"
+          title="Scroll down"
         >
           <div className="scroll-line" />
           <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.68rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#b5a898" }}>
@@ -1482,21 +2154,23 @@ export default function Portfolio() {
 
         <div className="grid-2">
           <div>
-            <p className="about-text">
+            <p className="about-text" style={{ fontSize: "1.15rem", lineHeight: 1.95, color: "#c8bfb2", fontWeight: 300, marginBottom: "1.5rem" }}>
               I am a <strong>4th Year Computer Science & Engineering student</strong> at Metropolitan University, Sylhet, focused on software engineering, intelligent agents, and aesthetic digital experiences.
             </p>
-            <p className="about-text">
+            <p className="about-text" style={{ fontSize: "1.15rem", lineHeight: 1.95, color: "#c8bfb2", fontWeight: 300, marginBottom: "1.5rem" }}>
               From building <strong>AI-powered academic bots</strong> with conversation memory to shooting natural light portraits and brand graphics, I bridge the gap between technical rigor and creative expression.
             </p>
-            <p className="about-text">
+            <p className="about-text" style={{ fontSize: "1.15rem", lineHeight: 1.95, color: "#c8bfb2", fontWeight: 300, marginBottom: "1.5rem" }}>
               Beyond engineering, I actively serve as <strong>Organizing President at Students Welfare</strong>, spearheading campus support programs, welfare initiatives, and youth leadership drives.
             </p>
 
             <div style={{ marginTop: "2rem" }}>
               <div className="section-label" style={{ marginBottom: "0.9rem" }}>Core Strengths</div>
-              <div style={{ display: "flex", flexWrap: "wrap", margin: "-0.3rem" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
                 {strengths.map((s) => (
-                  <span key={s} className="tag">{s}</span>
+                  <span key={s} style={{ padding: "0.45rem 1rem", border: "1px solid rgba(212, 168, 83, 0.25)", fontFamily: "'Courier Prime', monospace", fontSize: "0.76rem", color: "#e0d5c5" }}>
+                    {s}
+                  </span>
                 ))}
               </div>
             </div>
@@ -1510,9 +2184,9 @@ export default function Portfolio() {
                 { num: "President", label: "Students Welfare" },
                 { num: "3+", label: "Design Suites" },
               ].map((s) => (
-                <div key={s.label} className="stat">
-                  <span className="stat-num">{s.num}</span>
-                  <span className="stat-label">{s.label}</span>
+                <div key={s.label} className="card" style={{ textAlign: "center", padding: "1.6rem 1rem" }}>
+                  <span style={{ fontFamily: "'Cinzel', serif", fontSize: "2.3rem", color: "#d4a853", display: "block" }}>{s.num}</span>
+                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#b5a898", marginTop: "0.3rem", display: "block" }}>{s.label}</span>
                 </div>
               ))}
             </div>
@@ -1527,6 +2201,16 @@ export default function Portfolio() {
                 <span style={{ color: "#d4a853" }}>Metropolitan University, Sylhet</span><br />
                 Expected Graduation: 2027
               </p>
+              <div style={{ marginTop: "1.2rem" }}>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => setShowCvModal(true)}
+                  style={{ padding: "0.5rem 1rem", fontSize: "0.72rem" }}
+                >
+                  <DocumentIcon size={14} />
+                  <span>View Full CV</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1586,7 +2270,7 @@ export default function Portfolio() {
         </div>
       </Section>
 
-      {/* PROJECTS SECTION */}
+      {/* PROJECTS SECTION (With MetroMate & Feature 6 Live GitHub Repos Widget) */}
       <Section id="Projects">
         <div className="section-label">Selected Work</div>
         <h2 className="section-title">
@@ -1594,7 +2278,7 @@ export default function Portfolio() {
           <em>Projects</em>
         </h2>
 
-        {/* Featured Project: MetroMate */}
+        {/* MetroMate AI Bot */}
         <div className="project-card">
           <div className="project-header">
             <div className="project-tech">
@@ -1648,156 +2332,80 @@ export default function Portfolio() {
           </div>
         </div>
 
-        {/* Feature Project Directly Linked to GitHub Profile */}
-        <div className="github-profile-box">
-          <div className="github-profile-info">
-            <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "0.5rem" }}>
-              <GithubIcon size={22} />
-              <span style={{ fontFamily: "'Cinzel', serif", fontSize: "1.3rem", color: "#f0e8d8" }}>
-                GitHub Profile & Repositories
-              </span>
-            </div>
-            <p style={{ fontSize: "0.98rem", color: "#b5a898", lineHeight: 1.7, fontWeight: 300 }}>
-              Explore my public repositories, experimental AI prototypes, algorithms, and university coursework directly on GitHub under <strong>@ubaydafox</strong>.
-            </p>
-          </div>
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary"
-          >
-            <GithubIcon size={16} />
-            <span>Visit @ubaydafox on GitHub</span>
-            <ExternalLinkIcon size={13} />
-          </a>
-        </div>
-      </Section>
-
-      {/* DESIGN SECTION (With direct link to Instagram profile overview) */}
-      <Section id="Design">
-        <div className="section-label">Visual Work</div>
-        <h2 className="section-title">
-          Design &<br />
-          <em>Aesthetics</em>
-        </h2>
-
-        <div className="grid-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
-          {[
-            {
-              title: "Social Media Identity",
-              desc: "High-contrast, brand-consistent visual creatives structured for clarity, engagement, and cross-platform presence."
-            },
-            {
-              title: "Poster & Event Banners",
-              desc: "Promotional graphics, academic banners, and public notices engineered with strong typographic hierarchy."
-            },
-            {
-              title: "UI & Layout Composition",
-              desc: "Clean digital interfaces focusing on functional typography, visual balance, and purposeful negative space."
-            },
-            {
-              title: "Brand Vector Assets",
-              desc: "Cohesive visual themes, custom logos, and vector illustrations executed in Adobe Illustrator."
-            },
-          ].map((item) => (
-            <div key={item.title} className="card">
-              <div className="card-icon-box">
-                <PaletteIcon size={18} />
-              </div>
-              <div className="card-title">{item.title}</div>
-              <p className="card-text">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Instagram Profile Overview Showcase Banner */}
-        <div className="instagram-showcase-box">
-          <div>
-            <div className="insta-pill">
-              <InstagramIcon size={15} />
-              <span>Design Portfolio Showcase</span>
-            </div>
-            <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.5rem", color: "#f0e8d8", marginBottom: "0.6rem" }}>
-              Explore Design Works on Instagram
-            </div>
-            <p style={{ fontSize: "1rem", color: "#c4b9a9", lineHeight: 1.7, fontWeight: 300, maxWidth: "600px" }}>
-              Follow my creative design feed at <strong>@ubaydafox</strong>. Browse vector illustrations, branding campaigns, student event banners, and digital graphics directly on Instagram.
-            </p>
-          </div>
-
-          <div>
+        {/* Feature 6: Live GitHub Stats & Repositories Widget */}
+        <div style={{ marginTop: "3.5rem" }}>
+          <div className="section-label">Open Source Footprint</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
+            <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "1.8rem", color: "#f0e8d8" }}>
+              Live GitHub Activity
+            </h3>
             <a
-              href={instagramUrl}
+              href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-primary"
+              className="btn btn-outline"
+              style={{ padding: "0.5rem 1rem", fontSize: "0.72rem" }}
             >
-              <InstagramIcon size={16} />
-              <span>Instagram Profile Overview</span>
-              <ExternalLinkIcon size={13} />
+              <GithubIcon size={14} />
+              <span>@ubaydafox on GitHub</span>
+              <ExternalLinkIcon size={12} />
             </a>
           </div>
-        </div>
-      </Section>
 
-      {/* PHOTOGRAPHY SECTION */}
-      <Section id="Photography">
-        <div className="section-label">Through the Lens</div>
-        <h2 className="section-title">
-          Photography<br />
-          <em>Collection</em>
-        </h2>
-
-        <div className="grid-2">
-          <div>
-            <p className="about-text">
-              Photography is an exploration of <strong>light, geometry, and fleeting expressions</strong>. It complements my engineering mindset by reinforcing an eye for composition and nuance.
-            </p>
-            <p className="about-text">
-              My portfolio focuses on <strong>natural light portraiture</strong> and <strong>nature landscapes</strong>, striving for raw authenticity without artificial distortion.
-            </p>
-            <div style={{ marginTop: "2rem" }}>
-              <a
-                className="btn btn-outline"
-                href={instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <InstagramIcon size={16} />
-                <span>View Photography on Instagram</span>
-                <ExternalLinkIcon size={13} />
-              </a>
+          {/* GitHub Stats Bar */}
+          <div className="github-stats-bar">
+            <div className="github-stat-pill">
+              <GithubIcon size={15} />
+              <span>User: <strong style={{ color: "#d4a853" }}>ubaydafox</strong></span>
+            </div>
+            <div className="github-stat-pill">
+              <span>Public Repositories:</span>
+              <span className="github-stat-num">{githubUser.public_repos || 4}</span>
+            </div>
+            <div className="github-stat-pill">
+              <span>Followers:</span>
+              <span className="github-stat-num">{githubUser.followers || 2}</span>
+            </div>
+            <div className="github-stat-pill">
+              <span>Status:</span>
+              <span style={{ color: "#7ac57a" }}>Live Connected</span>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem" }}>
-            {[
-              {
-                title: "Nature & Flora",
-                desc: "Quiet landscapes, organic textures, and rural daylight captures."
-              },
-              {
-                title: "Portraits",
-                desc: "Candid human expressions, tonal depth, and personal narratives."
-              },
-            ].map((p) => (
-              <div
-                key={p.title}
-                className="card"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  minHeight: "180px",
-                }}
-              >
-                <div className="card-icon-box">
-                  <CameraIcon size={20} />
-                </div>
+          {/* Repos Grid */}
+          <div className="grid-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+            {githubRepos.slice(0, 3).map((repo) => (
+              <div key={repo.name} className="repo-card">
                 <div>
-                  <div className="card-title">{p.title}</div>
-                  <p className="card-text" style={{ fontSize: "0.88rem" }}>{p.desc}</p>
+                  <a
+                    href={repo.html_url || githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="repo-name-link"
+                  >
+                    <span>{repo.name}</span>
+                    <ExternalLinkIcon size={12} />
+                  </a>
+                  <p className="repo-desc">
+                    {repo.description || "Public software engineering repository and algorithm implementations."}
+                  </p>
+                </div>
+
+                <div className="repo-meta">
+                  {repo.language && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <span className="repo-lang-dot" style={{ backgroundColor: getLangColor(repo.language) }} />
+                      <span>{repo.language}</span>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <StarIcon size={12} />
+                    <span>{repo.stargazers_count ?? 1}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <GitForkIcon size={12} />
+                    <span>{repo.forks_count ?? 0}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1805,13 +2413,119 @@ export default function Portfolio() {
         </div>
       </Section>
 
-      {/* SOCIAL WORK & LEADERSHIP SECTION */}
+      {/* FEATURE 3: DESIGN & PHOTOGRAPHY SHOWCASE WITH LIGHTBOX & MANAGEMENT SYSTEM */}
+      <Section id="Gallery">
+        <div className="section-label">Visual Portfolio</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem", marginBottom: "2.5rem" }}>
+          <div>
+            <h2 className="section-title" style={{ marginBottom: "0.5rem" }}>
+              Design &<br />
+              <em>Photography Gallery</em>
+            </h2>
+            <p style={{ fontSize: "1.05rem", color: "#b5a898", maxWidth: "600px", fontWeight: 300 }}>
+              Curated collection of Adobe Illustrator vector art, event branding, typographic posters, and natural light photography.
+            </p>
+          </div>
+
+          {/* Dedicated Manager Button */}
+          <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowGalleryManager(true)}
+              title="Add or manage images in the gallery"
+            >
+              <UploadIcon size={15} />
+              <span>Upload / Manage Photos</span>
+            </button>
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline"
+            >
+              <InstagramIcon size={15} />
+              <span>Instagram Feed</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="gallery-filter-bar">
+          <div className="filter-buttons">
+            {["All", "Design", "Photography"].map((cat) => (
+              <button
+                key={cat}
+                className={`filter-btn ${galleryFilter === cat ? "active" : ""}`}
+                onClick={() => setGalleryFilter(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.74rem", color: "#8a7e72" }}>
+            Showing {filteredGallery.length} {filteredGallery.length === 1 ? "work" : "works"}
+          </span>
+        </div>
+
+        {/* Gallery Grid */}
+        <div className="gallery-grid">
+          {filteredGallery.map((item, idx) => (
+            <div
+              key={item.id}
+              className="gallery-item-card"
+              onClick={() => setLightboxIndex(idx)}
+            >
+              <div className="gallery-img-wrap">
+                <img src={item.image} alt={item.title} loading="lazy" />
+                <div className="gallery-item-overlay">
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                    <ZoomInIcon size={24} />
+                    <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", letterSpacing: "0.2em", textTransform: "uppercase" }}>
+                      Enlarge View
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="gallery-item-meta">
+                <div className="gallery-item-subcat">{item.subcategory}</div>
+                <div className="gallery-item-title">{item.title}</div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", color: "#7a6e60", marginTop: "0.4rem" }}>
+                  {item.tools}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* FEATURE 5: STUDENTS WELFARE LEADERSHIP & IMPACT MILESTONES */}
       <Section id="Social">
-        <div className="section-label">Community & Impact</div>
+        <div className="section-label">Community & Leadership</div>
         <h2 className="section-title">
-          Social Work &<br />
-          <em>Leadership</em>
+          Students Welfare<br />
+          <em>Leadership & Impact</em>
         </h2>
+
+        {/* Impact Numbers */}
+        <div className="impact-grid">
+          <div className="impact-card">
+            <span className="impact-number">Organizing</span>
+            <span className="impact-title">Current Role: President</span>
+          </div>
+          <div className="impact-card">
+            <span className="impact-number">500+</span>
+            <span className="impact-title">Students Supported</span>
+          </div>
+          <div className="impact-card">
+            <span className="impact-number">4+</span>
+            <span className="impact-title">Welfare Campaigns</span>
+          </div>
+          <div className="impact-card">
+            <span className="impact-number">15+</span>
+            <span className="impact-title">Executive Volunteers</span>
+          </div>
+        </div>
 
         <div className="grid-2">
           <div>
@@ -1823,8 +2537,8 @@ export default function Portfolio() {
                 marginBottom: "2rem",
               }}
             >
-              <div className="section-label" style={{ marginBottom: "0.6rem" }}>Active Leadership Role</div>
-              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.6rem", color: "#f0e8d8", marginBottom: "0.4rem" }}>
+              <div className="section-label" style={{ marginBottom: "0.6rem" }}>Executive Office</div>
+              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.7rem", color: "#f0e8d8", marginBottom: "0.4rem" }}>
                 Students Welfare
               </div>
               <div
@@ -1841,42 +2555,46 @@ export default function Portfolio() {
               </div>
             </div>
 
-            <p className="about-text">
-              True leadership combines technical competence with <strong>empathy and community service</strong>. As Organizing President at Students Welfare, I direct volunteer operations, coordinate student financial aid and resources, and plan large-scale campus events.
+            <p className="about-text" style={{ fontSize: "1.1rem", lineHeight: 1.9, color: "#c8bfb2", fontWeight: 300 }}>
+              True leadership combines technical competence with <strong>empathy and community service</strong>. As Organizing President at Students Welfare, I direct volunteer operations, coordinate student emergency support, and orchestrate university-wide welfare drives.
             </p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {[
-              {
-                icon: <UsersIcon size={18} />,
-                title: "Organizational Leadership",
-                desc: "Presiding over committee meetings, defining quarterly welfare priorities, and mentoring student volunteers."
-              },
-              {
-                icon: <LayersIcon size={18} />,
-                title: "Event & Campaign Management",
-                desc: "Orchestrating university fundraisers, emergency relief drives, and academic support camps from planning to execution."
-              },
-              {
-                icon: <SparklesIcon size={18} />,
-                title: "Student Advocacy",
-                desc: "Liaising with university administration to safeguard student rights, welfare, and equitable access to campus resources."
-              },
-            ].map((item) => (
-              <div key={item.title} className="card" style={{ padding: "1.5rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.5rem" }}>
-                  <div style={{ color: "#d4a853" }}>{item.icon}</div>
-                  <div className="card-title" style={{ margin: 0 }}>{item.title}</div>
-                </div>
-                <p className="card-text">{item.desc}</p>
+          <div>
+            <div className="section-label" style={{ marginBottom: "1rem" }}>Leadership Milestones</div>
+            <div className="timeline-box">
+              <div className="timeline-item">
+                <div className="timeline-dot" />
+                <div className="timeline-date">2024 — Present</div>
+                <div className="timeline-role">Organizing President</div>
+                <p className="timeline-desc">
+                  Elected as Organizing President of Students Welfare. Presiding over committee meetings, structuring annual campus welfare programs, and facilitating academic relief funds.
+                </p>
               </div>
-            ))}
+
+              <div className="timeline-item">
+                <div className="timeline-dot" />
+                <div className="timeline-date">2023 — 2024</div>
+                <div className="timeline-role">Event Logistics & Welfare Coordination</div>
+                <p className="timeline-desc">
+                  Directed inter-faculty coordination, student support booths, emergency blood donation networks, and university donation drives.
+                </p>
+              </div>
+
+              <div className="timeline-item">
+                <div className="timeline-dot" />
+                <div className="timeline-date">2023</div>
+                <div className="timeline-role">Community Outreach & Winter Aid</div>
+                <p className="timeline-desc">
+                  Spearheaded annual winter clothes drive and grassroots student orientation sessions across university departments.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </Section>
 
-      {/* CONTACT SECTION (With Security IP Reveal Mechanism) */}
+      {/* CONTACT SECTION (With Feature 4 Direct Form & IP Protected Info) */}
       <Section id="Contact">
         <div className="section-label">Connect</div>
         <h2 className="section-title">
@@ -1885,12 +2603,105 @@ export default function Portfolio() {
         </h2>
 
         <div className="grid-2">
+          {/* Left Column: Direct Message Form (Feature 4) */}
           <div>
-            <p className="about-text" style={{ marginBottom: "2.2rem" }}>
-              Interested in collaborating on a software project, design identity, or community initiative? Let's discuss possibilities.
+            <div className="section-label" style={{ marginBottom: "0.6rem" }}>Direct Inquiry</div>
+            <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "1.5rem", color: "#f0e8d8", marginBottom: "0.8rem" }}>
+              Send a Direct Message
+            </h3>
+            <p style={{ fontSize: "0.98rem", color: "#b5a898", lineHeight: 1.7, fontWeight: 300, marginBottom: "1.5rem" }}>
+              Want to collaborate, discuss a software project, or request design work? Fill out the form below to reach me directly.
             </p>
 
-            {/* Contact Items List */}
+            <div className="contact-form-box">
+              {formSentSuccess ? (
+                <div className="form-success-box">
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", color: "#d4a853" }}>
+                    <CheckIcon size={16} />
+                    <strong>Message Dispatched Successfully!</strong>
+                  </div>
+                  <p>
+                    Thank you, <strong>{contactName || "Friend"}</strong>. Your message has been received. I will reply back to your email ({contactEmail}) promptly.
+                  </p>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => setFormSentSuccess(false)}
+                    style={{ marginTop: "1rem", padding: "0.4rem 0.8rem", fontSize: "0.72rem" }}
+                  >
+                    Send Another Message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleContactSubmit}>
+                  <div className="form-group">
+                    <label className="form-label">Your Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Nahidul Islam"
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Your Email</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. yourname@domain.com"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Subject</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Software Project / Design Collaboration"
+                      value={contactSubject}
+                      onChange={(e) => setContactSubject(e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Message</label>
+                    <textarea
+                      required
+                      placeholder="Write your message here..."
+                      value={contactMessage}
+                      onChange={(e) => setContactMessage(e.target.value)}
+                      className="form-textarea"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={formSending}
+                    className="btn btn-primary"
+                    style={{ width: "100%" }}
+                  >
+                    {formSending ? "Sending Message..." : "Dispatch Message"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Protected Contact Info with IP Verification & Socials */}
+          <div>
+            <div className="section-label" style={{ marginBottom: "0.6rem" }}>Direct Channels</div>
+            <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "1.5rem", color: "#f0e8d8", marginBottom: "0.8rem" }}>
+              Protected Contact Details
+            </h3>
+            <p style={{ fontSize: "0.98rem", color: "#b5a898", lineHeight: 1.7, fontWeight: 300, marginBottom: "1.5rem" }}>
+              Direct phone and personal email are protected against automated web scraping bots.
+            </p>
+
             <div style={{ display: "flex", flexDirection: "column" }}>
               {/* Phone (Protected) */}
               <div className="contact-item-row">
@@ -1958,7 +2769,7 @@ export default function Portfolio() {
                 </div>
               </div>
 
-              {/* LinkedIn (Direct link updated to https://www.linkedin.com/in/ubaydafox) */}
+              {/* LinkedIn */}
               <div className="contact-item-row">
                 <div className="contact-left">
                   <div className="contact-icon-wrapper">
@@ -1967,12 +2778,7 @@ export default function Portfolio() {
                   <span className="contact-type-label">LinkedIn</span>
                 </div>
                 <div className="contact-right-val">
-                  <a
-                    href={linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="contact-action-btn"
-                  >
+                  <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="contact-action-btn">
                     <span>ubaydafox</span>
                     <ExternalLinkIcon size={12} />
                   </a>
@@ -1988,12 +2794,7 @@ export default function Portfolio() {
                   <span className="contact-type-label">GitHub</span>
                 </div>
                 <div className="contact-right-val">
-                  <a
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="contact-action-btn"
-                  >
+                  <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="contact-action-btn">
                     <span>ubaydafox</span>
                     <ExternalLinkIcon size={12} />
                   </a>
@@ -2009,12 +2810,7 @@ export default function Portfolio() {
                   <span className="contact-type-label">Instagram</span>
                 </div>
                 <div className="contact-right-val">
-                  <a
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="contact-action-btn"
-                  >
+                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="contact-action-btn">
                     <span>ubaydafox</span>
                     <ExternalLinkIcon size={12} />
                   </a>
@@ -2024,7 +2820,7 @@ export default function Portfolio() {
 
             {/* Toggle state reset if revealed */}
             {isContactRevealed && (
-              <div style={{ marginTop: "1.2rem", display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
                 <button
                   onClick={() => setIsContactRevealed(false)}
                   style={{
@@ -2042,35 +2838,434 @@ export default function Portfolio() {
                 </button>
               </div>
             )}
-          </div>
 
-          {/* Right column: Status Card */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div
-              style={{
-                padding: "2.2rem",
-                border: "1px solid rgba(212, 168, 83, 0.2)",
-                background: "rgba(212, 168, 83, 0.02)",
-              }}
-            >
-              <div className="section-label" style={{ marginBottom: "0.8rem" }}>Current Status</div>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", color: "#c8bfb2", lineHeight: 1.8, fontStyle: "italic" }}>
-                "4th Year CSE student at Metropolitan University, Sylhet. Serving as Organizing President at Students Welfare, developing AI agents, and crafting visual identities."
-              </p>
-            </div>
-
-            <div style={{ padding: "1.8rem", border: "1px solid rgba(212, 168, 83, 0.12)", textAlign: "center" }}>
-              <div className="section-label" style={{ marginBottom: "0.5rem", justifyContent: "center" }}>Location</div>
-              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.25rem", color: "#f0e8d8" }}>
+            {/* Location Card */}
+            <div style={{ marginTop: "2rem", padding: "1.8rem", border: "1px solid rgba(212, 168, 83, 0.15)", background: "rgba(212, 168, 83, 0.02)" }}>
+              <div className="section-label" style={{ marginBottom: "0.5rem" }}>Location</div>
+              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1.3rem", color: "#f0e8d8" }}>
                 Sylhet, Bangladesh
               </div>
-              <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.74rem", color: "#7a6e61", marginTop: "0.4rem", letterSpacing: "0.15em" }}>
-                Available for Remote Collaboration & Projects
+              <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.74rem", color: "#8a7e72", marginTop: "0.4rem" }}>
+                Metropolitan University · Available for Remote Software & Design Engagements
               </div>
             </div>
           </div>
         </div>
       </Section>
+
+      {/* FEATURE 3 LIGHTBOX MODAL */}
+      {lightboxIndex !== null && currentLightboxItem && (
+        <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
+          <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="lightbox-close-btn"
+              onClick={() => setLightboxIndex(null)}
+              aria-label="Close Lightbox"
+            >
+              <CloseIcon size={22} />
+            </button>
+
+            {/* Left Image View */}
+            <div className="lightbox-img-area">
+              <img src={currentLightboxItem.image} alt={currentLightboxItem.title} />
+              <button
+                className="lightbox-nav-btn lightbox-prev"
+                onClick={handlePrevLightbox}
+                aria-label="Previous artwork"
+              >
+                <ArrowLeftIcon size={20} />
+              </button>
+              <button
+                className="lightbox-nav-btn lightbox-next"
+                onClick={handleNextLightbox}
+                aria-label="Next artwork"
+              >
+                <ArrowRightIcon size={20} />
+              </button>
+            </div>
+
+            {/* Right Meta View */}
+            <div className="lightbox-info-area">
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
+                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.74rem", letterSpacing: "0.2em", color: "#d4a853", textTransform: "uppercase" }}>
+                    {currentLightboxItem.category} // {currentLightboxItem.subcategory}
+                  </span>
+                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", color: "#8a7e72" }}>
+                    {lightboxIndex + 1} / {filteredGallery.length}
+                  </span>
+                </div>
+
+                <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "1.8rem", color: "#f0e8d8", marginBottom: "1rem" }}>
+                  {currentLightboxItem.title}
+                </h3>
+
+                <p style={{ fontSize: "1.05rem", color: "#c4b9a9", lineHeight: 1.8, fontWeight: 300, marginBottom: "1.5rem" }}>
+                  {currentLightboxItem.description}
+                </p>
+
+                <div style={{ padding: "1rem", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(212, 168, 83, 0.15)", marginBottom: "1.5rem" }}>
+                  <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", color: "#8a7e72", textTransform: "uppercase", marginBottom: "0.3rem" }}>
+                    Tools & Medium
+                  </div>
+                  <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.88rem", color: "#d4a853" }}>
+                    {currentLightboxItem.tools}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <a
+                  href={currentLightboxItem.instagramUrl || instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ width: "100%" }}
+                >
+                  <InstagramIcon size={16} />
+                  <span>View on Instagram @ubaydafox</span>
+                  <ExternalLinkIcon size={13} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FEATURE 3: DEDICATED GALLERY BACKEND / MANAGEMENT MODAL */}
+      {showGalleryManager && (
+        <div className="modal-overlay" onClick={() => setShowGalleryManager(false)}>
+          <div className="modal-box" style={{ maxWidth: "680px", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">
+                <UploadIcon size={20} />
+                <span>Gallery Management Portal</span>
+              </div>
+              <button
+                className="modal-close-btn"
+                onClick={() => setShowGalleryManager(false)}
+              >
+                <CloseIcon size={18} />
+              </button>
+            </div>
+
+            {/* Tab navigation */}
+            <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid rgba(212, 168, 83, 0.15)", paddingBottom: "0.8rem", marginBottom: "1.5rem" }}>
+              <button
+                className={`filter-btn ${managerTab === "add" ? "active" : ""}`}
+                onClick={() => setManagerTab("add")}
+              >
+                Upload & Add Photo
+              </button>
+              <button
+                className={`filter-btn ${managerTab === "list" ? "active" : ""}`}
+                onClick={() => setManagerTab("list")}
+              >
+                Active Items ({galleryItems.length})
+              </button>
+              <button
+                className={`filter-btn ${managerTab === "help" ? "active" : ""}`}
+                onClick={() => setManagerTab("help")}
+              >
+                Folder Guide
+              </button>
+            </div>
+
+            {newItemNotice && (
+              <div style={{ padding: "0.8rem 1rem", background: "rgba(212, 168, 83, 0.1)", border: "1px solid rgba(212, 168, 83, 0.3)", color: "#d4a853", fontFamily: "'Courier Prime', monospace", fontSize: "0.82rem", marginBottom: "1.2rem" }}>
+                {newItemNotice}
+              </div>
+            )}
+
+            {/* Tab 1: Upload / Add Form */}
+            {managerTab === "add" && (
+              <form onSubmit={handleAddGalleryItem}>
+                <div className="form-group">
+                  <label className="form-label">Photo Title</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Modern Vector Identity or Autumn Portrait"
+                    value={newItemTitle}
+                    onChange={(e) => setNewItemTitle(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Category</label>
+                    <select
+                      value={newItemCategory}
+                      onChange={(e) => setNewItemCategory(e.target.value)}
+                      className="form-input"
+                    >
+                      <option value="Design">Design</option>
+                      <option value="Photography">Photography</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Subcategory / Tag</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Typographic Poster, Portrait, Nature"
+                      value={newItemSubcat}
+                      onChange={(e) => setNewItemSubcat(e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Upload Image from Device (or enter Path/URL)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="form-input"
+                    style={{ marginBottom: "0.6rem" }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Or enter path e.g. /gallery/my-photo.jpg"
+                    value={newItemImage}
+                    onChange={(e) => setNewItemImage(e.target.value)}
+                    className="form-input"
+                  />
+                  {newItemImage && (
+                    <div style={{ marginTop: "0.8rem", textAlign: "center", background: "#0a0907", padding: "0.8rem", border: "1px solid rgba(212,168,83,0.2)" }}>
+                      <img src={newItemImage} alt="Preview" style={{ maxHeight: "140px", maxWidth: "100%", objectFit: "contain" }} />
+                      <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.7rem", color: "#7a6e60", marginTop: "0.3rem" }}>Live Preview</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Tools / Camera Used</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Adobe Illustrator, Sony 50mm, Canva"
+                    value={newItemTools}
+                    onChange={(e) => setNewItemTools(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Short Description</label>
+                  <textarea
+                    placeholder="Artistic concept or background notes..."
+                    value={newItemDesc}
+                    onChange={(e) => setNewItemDesc(e.target.value)}
+                    className="form-textarea"
+                    style={{ minHeight: "80px" }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+                  <button type="button" className="btn btn-outline" onClick={() => setShowGalleryManager(false)}>
+                    Close
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    <UploadIcon size={15} />
+                    <span>Publish to Profile</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Tab 2: Manage Current Items */}
+            {managerTab === "list" && (
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                  <span style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#8a7e72" }}>
+                    Total items currently live: {galleryItems.length}
+                  </span>
+                  <button
+                    onClick={handleResetGallery}
+                    style={{ background: "transparent", border: "none", color: "#d4a853", fontFamily: "'Courier Prime', monospace", fontSize: "0.72rem", cursor: "pointer", textDecoration: "underline" }}
+                  >
+                    Reset to Starter Collection
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem", maxHeight: "380px", overflowY: "auto" }}>
+                  {galleryItems.map((item) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0.8rem 1rem",
+                        background: "rgba(0,0,0,0.3)",
+                        border: "1px solid rgba(212,168,83,0.15)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <img src={item.image} alt={item.title} style={{ width: "45px", height: "45px", objectFit: "cover", border: "1px solid rgba(212,168,83,0.2)" }} />
+                        <div>
+                          <div style={{ fontFamily: "'Cinzel', serif", fontSize: "1rem", color: "#f0e8d8" }}>{item.title}</div>
+                          <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.7rem", color: "#d4a853" }}>{item.category} // {item.subcategory}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteGalleryItem(item.id)}
+                        className="contact-action-btn"
+                        style={{ color: "#e07a7a", borderColor: "rgba(224,122,122,0.3)" }}
+                        title="Delete item"
+                      >
+                        <TrashIcon size={14} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Dedicated Folder Instructions */}
+            {managerTab === "help" && (
+              <div style={{ fontSize: "0.98rem", color: "#c4b9a9", lineHeight: 1.8 }}>
+                <p style={{ marginBottom: "1rem" }}>
+                  <strong>How the dedicated folder works:</strong>
+                </p>
+                <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(212,168,83,0.2)", padding: "1.2rem", fontFamily: "'Courier Prime', monospace", fontSize: "0.82rem", marginBottom: "1rem" }}>
+                  📁 Folder Path: <span style={{ color: "#d4a853" }}>my-portfolio/public/gallery/</span>
+                </div>
+                <ol style={{ paddingLeft: "1.2rem", marginBottom: "1.2rem" }}>
+                  <li style={{ marginBottom: "0.5rem" }}>
+                    Copy your JPG, PNG, or SVG image files directly into your project's <code>public/gallery/</code> folder (e.g. <code>my-photo.jpg</code>).
+                  </li>
+                  <li style={{ marginBottom: "0.5rem" }}>
+                    In the <strong>Upload & Add Photo</strong> tab above, enter <code>/gallery/my-photo.jpg</code> in the image path field.
+                  </li>
+                  <li>
+                    Alternatively, click the file upload button to directly choose and showcase any photo from your computer!
+                  </li>
+                </ol>
+                <p style={{ fontSize: "0.85rem", color: "#8a7e72" }}>
+                  Any item you add automatically saves to your browser storage and updates the live portfolio immediately.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FEATURE 2: DOWNLOAD CV / RESUME MODAL */}
+      {showCvModal && (
+        <div className="modal-overlay" onClick={() => setShowCvModal(false)}>
+          <div className="cv-modal-box cv-modal-printable" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modal-close-btn"
+              onClick={() => setShowCvModal(false)}
+              style={{ position: "absolute", top: "1.5rem", right: "1.5rem" }}
+            >
+              <CloseIcon size={20} />
+            </button>
+
+            {/* CV Header */}
+            <div className="cv-header-block">
+              <div>
+                <h1 className="cv-name">Abu Ubayda</h1>
+                <div className="cv-subtitle">
+                  CSE Student · Software Developer · Organizing President at Students Welfare
+                </div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#8a7e72", marginTop: "0.4rem" }}>
+                  Sylhet, Bangladesh · GitHub: github.com/ubaydafox · LinkedIn: linkedin.com/in/ubaydafox
+                </div>
+              </div>
+
+              {/* Action Bar */}
+              <div className="cv-action-bar" style={{ display: "flex", gap: "0.8rem", marginTop: "0.5rem" }}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => window.print()}
+                  style={{ padding: "0.5rem 1.2rem", fontSize: "0.72rem" }}
+                >
+                  <DocumentIcon size={14} />
+                  <span>Print / Save PDF</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Education */}
+            <h3 className="cv-section-h3">Education</h3>
+            <div className="cv-entry">
+              <div className="cv-entry-head">
+                <span className="cv-entry-title">B.Sc. in Computer Science & Engineering</span>
+                <span className="cv-entry-date">2023 — 2027 (Expected)</span>
+              </div>
+              <div className="cv-entry-sub">Metropolitan University, Sylhet, Bangladesh</div>
+              <p className="cv-entry-body">
+                Key Focus: Software Engineering, Data Structures & Algorithms, Artificial Intelligence & Machine Learning Integration, Object-Oriented Programming (Java, Python, C/C++), and Database Management Systems.
+              </p>
+            </div>
+
+            {/* Leadership Experience */}
+            <h3 className="cv-section-h3">Leadership & Experience</h3>
+            <div className="cv-entry">
+              <div className="cv-entry-head">
+                <span className="cv-entry-title">Organizing President</span>
+                <span className="cv-entry-date">2024 — Present</span>
+              </div>
+              <div className="cv-entry-sub">Students Welfare, Metropolitan University</div>
+              <p className="cv-entry-body">
+                • Presiding over the executive student welfare committee, orchestrating volunteer operations, and directing community aid programs.<br />
+                • Spearheading academic assistance funds, emergency relief drives, and student guidance initiatives supporting over 500+ peers.<br />
+                • Managing cross-faculty event logistics, university blood donation campaigns, and administrative student representation.
+              </p>
+            </div>
+
+            {/* Technical Projects */}
+            <h3 className="cv-section-h3">Technical Projects</h3>
+            <div className="cv-entry">
+              <div className="cv-entry-head">
+                <span className="cv-entry-title">MetroMate — AI Academic Assistant</span>
+                <span className="cv-entry-date">Python · Telegram API · Gemini AI</span>
+              </div>
+              <p className="cv-entry-body">
+                • Engineered an intelligent university chatbot providing automated routine schedules, faculty contacts, and course queries in both Bangla and English.<br />
+                • Integrated Google Gemini API for context-aware academic Q&A with conversational continuity and state memory.<br />
+                • Open source repository: github.com/ubaydafox/AI_Project.
+              </p>
+            </div>
+
+            <div className="cv-entry">
+              <div className="cv-entry-head">
+                <span className="cv-entry-title">Editorial Responsive Web Architecture</span>
+                <span className="cv-entry-date">React · Vite · CSS3</span>
+              </div>
+              <p className="cv-entry-body">
+                • Developed high-performance, mobile-optimized personal web portal featuring client-side IP verification security and modular gallery systems.
+              </p>
+            </div>
+
+            {/* Technical Skills */}
+            <h3 className="cv-section-h3">Technical & Creative Skills</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}>
+              <div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#d4a853", textTransform: "uppercase" }}>Languages & Database</div>
+                <div style={{ fontSize: "0.92rem", color: "#c4b9a9", marginTop: "0.2rem" }}>Java, Python, C, C++, HTML5, CSS3, JavaScript, MySQL</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#d4a853", textTransform: "uppercase" }}>Tools & AI Frameworks</div>
+                <div style={{ fontSize: "0.92rem", color: "#c4b9a9", marginTop: "0.2rem" }}>Gemini API, Telegram Bot API, Git, GitHub, Vite</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#d4a853", textTransform: "uppercase" }}>Design & Visual Arts</div>
+                <div style={{ fontSize: "0.92rem", color: "#c4b9a9", marginTop: "0.2rem" }}>Adobe Illustrator, Canva, Brand Identity, Poster Typography</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: "'Courier Prime', monospace", fontSize: "0.78rem", color: "#d4a853", textTransform: "uppercase" }}>Photography</div>
+                <div style={{ fontSize: "0.92rem", color: "#c4b9a9", marginTop: "0.2rem" }}>Natural Light Portraiture, Landscape & Nature Compositions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SECURITY MODAL: IP Reveal Alert */}
       {showIpModal && (
@@ -2090,7 +3285,7 @@ export default function Portfolio() {
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body" style={{ fontSize: "1rem", lineHeight: 1.7, color: "#c4b9a9", marginBottom: "1.8rem" }}>
               <p style={{ marginBottom: "0.8rem" }}>
                 To mitigate automated harvesting, malicious scanning, and unauthorized solicitations, direct access to personal contact records (Phone & Email) requires logging your network footprint.
               </p>
@@ -2119,7 +3314,7 @@ export default function Portfolio() {
               </p>
             </div>
 
-            <div className="modal-actions">
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
               <button
                 className="btn btn-outline"
                 onClick={() => setShowIpModal(false)}

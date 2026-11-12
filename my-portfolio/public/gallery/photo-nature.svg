@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#231b14"/>
+      <stop offset="60%" stop-color="#14110e"/>
+      <stop offset="100%" stop-color="#090807"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5d78e"/>
+      <stop offset="100%" stop-color="#c49740"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#sky)"/>
+  <circle cx="400" cy="280" r="110" fill="url(#sun)" fill-opacity="0.85"/>
+  <!-- Mountain contours -->
+  <polygon points="100,520 280,330 460,520" fill="#181410" stroke="#d4a853" stroke-width="1.2" stroke-opacity="0.5"/>
+  <polygon points="340,540 520,290 720,540" fill="#13100d" stroke="#d4a853" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="0" y="520" width="800" height="280" fill="#0c0a08"/>
+  <line x1="100" y1="520" x2="700" y2="520" stroke="#d4a853" stroke-opacity="0.2"/>
+  <text x="400" y="620" font-family="'Cinzel', Georgia, serif" font-size="28" fill="#f0e8d8" text-anchor="middle" letter-spacing="6">MIST & RIDGES</text>
+  <text x="400" y="660" font-family="'Courier Prime', monospace" font-size="13" fill="#d4a853" text-anchor="middle" letter-spacing="4">NATURE & LANDSCAPE PHOTOGRAPHY</text>
+  <text x="400" y="700" font-family="'Courier Prime', monospace" font-size="11" fill="#75695c" text-anchor="middle" letter-spacing="3">SYLHET HIGHLANDS // 24MM</text>
+</svg>
+
